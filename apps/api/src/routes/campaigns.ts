@@ -263,12 +263,16 @@ campaignsRouter.post(
     // Create Communication rows (deterministic externalId for idempotency)
     const communications = await prisma.$transaction(
       customers.map(customer =>
-        prisma.communication.create({
-          data: {
+        prisma.communication.upsert({
+          where: { externalId: `${campaign.id}:${customer.id}` },
+          create: {
             campaignId: campaign.id,
             customerId: customer.id,
             status: "queued",
             externalId: `${campaign.id}:${customer.id}`
+          },
+          update: {
+            status: "queued"
           }
         })
       )

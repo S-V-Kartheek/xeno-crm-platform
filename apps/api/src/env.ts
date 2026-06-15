@@ -25,6 +25,7 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
   // AI provider — Gemini API Key
   GEMINI_API_KEY: z.string().min(1),
+  GEMINI_MODEL: z.string().default("gemini-2.5-flash"),
   // Channel service — separate Express app on port 4001
   CHANNEL_SERVICE_URL: z.string().default("http://localhost:4001"),
   // URL the channel service will call back to with delivery receipts

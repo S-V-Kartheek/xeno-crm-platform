@@ -217,7 +217,7 @@ export default function CampaignWizard({ campaignId }: { campaignId?: string }) 
             <div className="ai-draft-section">
               <div className="ai-draft-header">
                 <span className="ai-badge">✨ AI Draft</span>
-                <span className="ai-subtext">Powered by Gemini — generates 2 tone variants</span>
+                <span className="ai-subtext">Xeno AI — generates 2 tone variants</span>
               </div>
               <button
                 className="btn btn-ai"

@@ -229,7 +229,7 @@ export default function SegmentBuilder({
           <div className="ai-header">
             <span className="ai-icon">✦</span>
             <strong>AI Segmentation</strong>
-            <span className="badge ai-badge">Powered by Gemini</span>
+            <span className="badge ai-badge">Xeno AI</span>
           </div>
           <p className="muted ai-desc">
             Describe your audience in plain English. AI translates it into editable rules below —

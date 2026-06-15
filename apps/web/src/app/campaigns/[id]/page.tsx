@@ -79,11 +79,6 @@ export default function CampaignDetailPage() {
   useEffect(() => { void load(); }, [load]);
 
   useEffect(() => {
-    if (!performance || insight || insightLoading) return;
-    void loadInsight();
-  }, [performance, insight, insightLoading, loadInsight]);
-
-  useEffect(() => {
     if (campaign?.status !== "sending") return;
     const interval = setInterval(() => { void load(); }, 3000);
     return () => clearInterval(interval);
@@ -206,7 +201,7 @@ export default function CampaignDetailPage() {
                 <p>One LLM pass over the aggregate stats shown on this page.</p>
               </div>
               <button className="btn btn-ghost btn-sm" onClick={loadInsight} disabled={insightLoading}>
-                {insightLoading ? "Thinking..." : "Regenerate"}
+                {insightLoading ? "Thinking..." : insight ? "Regenerate" : "Generate insight"}
               </button>
             </div>
             {insight ? (
@@ -222,7 +217,11 @@ export default function CampaignDetailPage() {
                 )}
               </>
             ) : (
-              <p className="muted">{insightLoading ? "Reading the funnel..." : "Insight will appear after events arrive."}</p>
+              <p className="muted">
+                {insightLoading
+                  ? "Reading the funnel..."
+                  : "Click Generate insight to spend one AI request on this campaign retrospective."}
+              </p>
             )}
           </div>
 

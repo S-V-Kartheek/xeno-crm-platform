@@ -33,6 +33,37 @@ function getGenAI(): GoogleGenerativeAI {
   return _genAI;
 }
 
+function formatAiProviderError(error: unknown): string {
+  const message = error instanceof Error ? error.message : "Unknown AI error";
+  const lowerMessage = message.toLowerCase();
+  const retryMatch =
+    message.match(/retry(?:Delay)?["']?:?["']?(\d+(?:\.\d+)?)s/i) ??
+    message.match(/retry in ([\d.]+)s/i);
+  const retrySeconds = retryMatch?.[1] ? Math.ceil(Number(retryMatch[1])) : null;
+  const retryText = retrySeconds
+    ? ` Try again in about ${retrySeconds} seconds, or use a fresh Gemini key/project.`
+    : " Try again later, or use a fresh Gemini key/project.";
+
+  if (
+    message.includes("429") ||
+    lowerMessage.includes("quota") ||
+    lowerMessage.includes("too many requests") ||
+    lowerMessage.includes("rate limit")
+  ) {
+    return `Gemini quota/rate limit hit for this key.${retryText}`;
+  }
+
+  if (
+    lowerMessage.includes("api key") ||
+    lowerMessage.includes("permission") ||
+    lowerMessage.includes("unauthorized")
+  ) {
+    return "Gemini API key is invalid or not authorized. Update GEMINI_API_KEY and restart the dev server.";
+  }
+
+  return message.length > 240 ? `${message.slice(0, 240)}...` : message;
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Segment generation
 // ────────────────────────────────────────────────────────────────────────────
@@ -80,7 +111,7 @@ export async function generateSegmentRules(naturalLanguage: string): Promise<AiG
   try {
     const genAI = getGenAI();
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: env.GEMINI_MODEL,
       systemInstruction: SEGMENT_SYSTEM_PROMPT,
       generationConfig: {
         responseMimeType: "application/json",
@@ -106,8 +137,7 @@ export async function generateSegmentRules(naturalLanguage: string): Promise<AiG
 
     return { ok: true, rules: validation.data };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown AI error";
-    return { ok: false, error: `AI request failed: ${message}` };
+    return { ok: false, error: `AI request failed: ${formatAiProviderError(error)}` };
   }
 }
 
@@ -151,7 +181,7 @@ export async function draftCampaignMessages(
   try {
     const genAI = getGenAI();
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: env.GEMINI_MODEL,
       systemInstruction: CAMPAIGN_DRAFT_SYSTEM_PROMPT,
       generationConfig: {
         responseMimeType: "application/json",
@@ -184,8 +214,7 @@ export async function draftCampaignMessages(
       }
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown AI error";
-    return { ok: false, error: `AI draft failed: ${message}` };
+    return { ok: false, error: `AI draft failed: ${formatAiProviderError(error)}` };
   }
 }
 
@@ -247,7 +276,7 @@ export async function summarizeCampaignInsight(
   try {
     const genAI = getGenAI();
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model: env.GEMINI_MODEL,
       systemInstruction: CAMPAIGN_INSIGHT_SYSTEM_PROMPT,
       generationConfig: {
         responseMimeType: "application/json",
@@ -285,7 +314,6 @@ export async function summarizeCampaignInsight(
       }
     };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown AI error";
-    return { ok: false, error: `AI insight failed: ${message}`, fallback };
+    return { ok: false, error: `AI insight failed: ${formatAiProviderError(error)}`, fallback };
   }
 }
