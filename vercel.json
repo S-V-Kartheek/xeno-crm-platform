@@ -1,0 +1,6 @@
+{
+  "buildCommand": "npm run build -w @smartcrm/shared && npm run build -w @smartcrm/web",
+  "installCommand": "npm ci",
+  "framework": "nextjs",
+  "outputDirectory": "apps/web/.next"
+}

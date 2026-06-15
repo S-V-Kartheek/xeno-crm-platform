@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AovTier {
+  value
+  mid
+  high
+}
+
+enum OrderStatus {
+  completed
+  returned
+  cancelled
+}
+
+enum SegmentCreatedVia {
+  manual
+  ai_generated
+}
+
+// ── Phase 3 enums ────────────────────────────────────────────
+enum CampaignStatus {
+  draft
+  sending
+  sent
+  failed
+}
+
+enum CampaignChannel {
+  email
+  sms
+  whatsapp
+}
+
+enum CommStatus {
+  queued
+  sent
+  delivered
+  opened
+  clicked
+  failed
+  bounced
+}
+
+model Customer {
+  id               String   @id @default(cuid())
+  externalId       String?  @unique
+  name             String
+  email            String   @unique
+  phone            String?
+  city             String?
+  signupDate       DateTime
+  categoryAffinity String?
+  aovTier          AovTier  @default(value)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  orders         Order[]
+  communications Communication[]
+
+  @@index([city])
+  @@index([categoryAffinity])
+  @@index([aovTier])
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  customerId  String
+  orderDate   DateTime
+  amount      Decimal     @db.Decimal(10, 2)
+  currency    String      @default("INR")
+  category    String
+  productName String
+  status      OrderStatus @default(completed)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@index([orderDate])
+  @@index([category])
+  @@index([status])
+}
+
+model Segment {
+  id          String            @id @default(cuid())
+  name        String            @unique
+  description String?
+  rules       Json
+  createdVia  SegmentCreatedVia @default(manual)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  campaigns Campaign[]
+
+  @@index([createdAt])
+  @@index([createdVia])
+}
+
+// ── Phase 3 models ───────────────────────────────────────────
+
+model Campaign {
+  id              String          @id @default(cuid())
+  name            String
+  segmentId       String
+  channel         CampaignChannel
+  messageTemplate String          @db.Text
+  status          CampaignStatus  @default(draft)
+  sentAt          DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  segment        Segment         @relation(fields: [segmentId], references: [id])
+  communications Communication[]
+
+  @@index([segmentId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Communication {
+  id         String     @id @default(cuid())
+  campaignId String
+  customerId String
+  status     CommStatus @default(queued)
+  externalId String     @unique // used for idempotent receipts
+  sentAt     DateTime?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  campaign Customer @relation(fields: [customerId], references: [id])
+  Campaign Campaign @relation(fields: [campaignId], references: [id])
+  events   CommunicationEvent[]
+
+  @@index([campaignId])
+  @@index([customerId])
+  @@index([status])
+  @@index([externalId])
+}
+
+// Event log — status is NEVER overwritten, only appended.
+// Current status = latest event by occurredAt.
+model CommunicationEvent {
+  id              String     @id @default(cuid())
+  communicationId String
+  status          CommStatus
+  occurredAt      DateTime   @default(now())
+  metadata        Json?      // optional: open rate, click URL, etc.
+
+  communication Communication @relation(fields: [communicationId], references: [id], onDelete: Cascade)
+
+  // Idempotency: same (communicationId, status) can only be recorded once
+  @@unique([communicationId, status])
+  @@index([communicationId])
+  @@index([occurredAt])
+}
+

@@ -1,0 +1,24 @@
+{
+  "name": "smartcrm",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AI-native mini CRM for Xeno engineering assignment",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w @smartcrm/api\" \"npm run dev -w @smartcrm/channel\" \"npm run dev -w @smartcrm/web\"",
+    "build": "npm run build -w @smartcrm/shared && npm run build -w @smartcrm/api && npm run build -w @smartcrm/channel && npm run build -w @smartcrm/web",
+    "typecheck": "npm run typecheck -w @smartcrm/shared && npm run typecheck -w @smartcrm/api && npm run typecheck -w @smartcrm/channel && npm run typecheck -w @smartcrm/web",
+    "seed:csv": "tsx scripts/generate-fashion-seed.ts",
+    "prisma:generate": "prisma generate --schema apps/api/prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate dev --schema apps/api/prisma/schema.prisma --name init_phase_1"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "prisma": "^6.19.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

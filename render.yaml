@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: smartcrm-api
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm ci && npm run build -w @smartcrm/shared && npm run build -w @smartcrm/api
+    startCommand: npm run start -w @smartcrm/api
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+      - key: CHANNEL_SERVICE_URL
+        sync: false
+      - key: CRM_CALLBACK_URL
+        sync: false
+
+  - type: web
+    name: smartcrm-channel
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm ci && npm run build -w @smartcrm/channel
+    startCommand: npm run start -w @smartcrm/channel
+    healthCheckPath: /health
