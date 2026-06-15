@@ -30,18 +30,40 @@ export type AiGenerateResult = {
 type ApiEnvelope<T> = { data: T };
 
 const fallbackApiUrl = "http://localhost:4000";
+const apiTimeoutMs = 8000;
 
 export function getApiUrl() {
   return process.env.NEXT_PUBLIC_API_URL ?? fallbackApiUrl;
 }
 
 export async function fetchFromApi<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${getApiUrl()}${path}`, { cache: "no-store", ...init });
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error((body as { error?: string }).error ?? `API ${response.status}`);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), apiTimeoutMs);
+
+  try {
+    const response = await fetch(`${getApiUrl()}${path}`, {
+      cache: "no-store",
+      ...init,
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error((body as { error?: string }).error ?? `API ${response.status}`);
+    }
+
+    return (await response.json()) as T;
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error(
+        "API request timed out. Check that NEXT_PUBLIC_API_URL points to a live backend."
+      );
+    }
+
+    throw error instanceof Error ? error : new Error("API unavailable");
+  } finally {
+    clearTimeout(timeoutId);
   }
-  return (await response.json()) as T;
 }
 
 // ── Customers ────────────────────────────────────────────────
