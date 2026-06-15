@@ -19,7 +19,7 @@ Your job is to convert a natural-language audience description into a structured
 | field              | type     | notes                                             |
 |--------------------|----------|---------------------------------------------------|
 | city               | string   | e.g. "Mumbai", "Delhi"                            |
-| categoryAffinity   | string   | e.g. "ethnic wear", "western", "accessories"      |
+| categoryAffinity   | string   | e.g. "Summer Dresses", "Denim", "Athleisure", "Festive Wear", "Footwear", "Accessories" |
 | aovTier            | enum     | one of: "value", "mid", "high"                    |
 | orderCount         | number   | total number of completed orders                  |
 | totalSpent         | number   | total spend in INR (completed orders only)        |
@@ -60,6 +60,7 @@ Return ONLY valid JSON matching this exact structure. No explanation, no markdow
 - For number fields (orderCount, totalSpent, daysSinceLastOrder), value must be a number (not a string).
 - If the user asks about "inactive" customers, use daysSinceLastOrder with gt.
 - If the user mentions a category like "summer collection", map it to categoryAffinity with contains.
+- If the user mentions "western wear", map it to categoryAffinity with in ["Summer Dresses", "Denim"].
 - Default logic to "AND" unless the user says "or".`;
 
 export const buildUserMessage = (naturalLanguagePrompt: string): string =>

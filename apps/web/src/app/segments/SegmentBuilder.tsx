@@ -27,7 +27,8 @@ const FIELD_LABELS: Record<string, string> = {
 const STRING_OPERATORS = [
   { value: "eq", label: "equals" },
   { value: "neq", label: "does not equal" },
-  { value: "contains", label: "contains" }
+  { value: "contains", label: "contains" },
+  { value: "in", label: "is one of" }
 ];
 
 const ENUM_OPERATORS = [
@@ -55,6 +56,20 @@ function getOperatorsForField(field: string) {
 
 function defaultCondition(): SegmentCondition {
   return { field: "city", operator: "contains", value: "" };
+}
+
+function normalizeCondition(condition: SegmentCondition): SegmentCondition {
+  if (condition.operator !== "in" || Array.isArray(condition.value)) {
+    return condition;
+  }
+
+  return {
+    ...condition,
+    value: String(condition.value)
+      .split(",")
+      .map((value) => value.trim())
+      .filter(Boolean)
+  };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -115,7 +130,7 @@ export default function SegmentBuilder({
       setPreviewLoading(true);
       setPreviewError(null);
       try {
-        const result = await previewSegment({ logic: lgc, conditions: validConds });
+        const result = await previewSegment({ logic: lgc, conditions: validConds.map(normalizeCondition) });
         setPreview(result);
       } catch (err) {
         setPreviewError(err instanceof Error ? err.message : "Preview failed");
@@ -197,7 +212,7 @@ export default function SegmentBuilder({
     setSaving(true);
     setSaveError(null);
     try {
-      const rules: SegmentRules = { logic, conditions: validConds };
+      const rules: SegmentRules = { logic, conditions: validConds.map(normalizeCondition) };
       if (mode === "create") {
         await createSegment({ name: name.trim(), description: description.trim() || undefined, rules });
       } else {
@@ -362,6 +377,15 @@ export default function SegmentBuilder({
                     placeholder="0"
                     value={String(condition.value)}
                     onChange={(e) => updateCondition(i, { value: Number(e.target.value) })}
+                  />
+                ) : condition.operator === "in" ? (
+                  <input
+                    className="input value-input"
+                    id={`value-input-${i}`}
+                    type="text"
+                    placeholder={condition.field === "city" ? "e.g. Mumbai, Chennai" : "e.g. Denim, Accessories"}
+                    value={Array.isArray(condition.value) ? condition.value.join(", ") : String(condition.value)}
+                    onChange={(e) => updateCondition(i, { value: e.target.value })}
                   />
                 ) : (
                   <input

@@ -111,9 +111,11 @@ CSV import accepts either `text/csv` request bodies or JSON bodies shaped as `{ 
 
 - Use Vercel for the Next.js app with `NEXT_PUBLIC_API_URL`.
 - Use Render/Railway for the CRM API and channel service.
+- Use Supabase Postgres for the hosted database by setting `DATABASE_URL` and `DIRECT_URL` on the API service.
 - Set `CORS_ORIGIN` to the deployed frontend URL.
 - Set `CHANNEL_SERVICE_URL` to the deployed channel service URL.
 - Set `CRM_CALLBACK_URL` to the deployed CRM API URL.
+- Follow `docs/SUPABASE_VERCEL_RENDER_SETUP.md` for the exact deployment order and env mapping.
 - Verify the full public send-to-receipt-to-insights loop before recording.
 
 ## Tradeoffs

@@ -32,6 +32,11 @@ function applyStringOperator(
       return { not: v };
     case "contains":
       return { contains: v, mode: "insensitive" };
+    case "in":
+      if (!Array.isArray(value)) {
+        throw new Error(`Operator "${op}" expects an array value for string fields`);
+      }
+      return { in: value, mode: "insensitive" };
     default:
       throw new Error(`Operator "${op}" is not valid for string fields`);
   }

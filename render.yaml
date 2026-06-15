@@ -5,13 +5,18 @@ services:
     plan: free
     rootDir: .
     buildCommand: npm ci && npm run build -w @smartcrm/shared && npm run build -w @smartcrm/api
+    preDeployCommand: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
     startCommand: npm run start -w @smartcrm/api
     healthCheckPath: /health
     envVars:
       - key: DATABASE_URL
         sync: false
+      - key: DIRECT_URL
+        sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
       - key: CORS_ORIGIN
         sync: false
       - key: CHANNEL_SERVICE_URL

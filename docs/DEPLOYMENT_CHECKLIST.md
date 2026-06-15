@@ -10,10 +10,12 @@ Use this as the Phase 5 hardening checklist before recording the walkthrough.
 
 ### CRM API
 
-- `DATABASE_URL`: hosted PostgreSQL connection string.
+- `DATABASE_URL`: hosted PostgreSQL runtime connection string.
+- `DIRECT_URL`: direct PostgreSQL connection string for Prisma migrations.
 - `PORT`: API port, usually provided by the platform.
 - `CORS_ORIGIN`: public frontend URL.
 - `GEMINI_API_KEY`: AI provider key.
+- `GEMINI_MODEL`: optional model override (`gemini-2.5-flash` default).
 - `CHANNEL_SERVICE_URL`: public channel service URL.
 - `CRM_CALLBACK_URL`: public CRM API URL that the channel service can call.
 
@@ -63,6 +65,7 @@ npm run dev -w @smartcrm/web
 - Channel can call API `/receipts`.
 - `/insights` shows non-empty campaign stats after a live send.
 - `.env` secrets are not committed.
+- Render API migrations complete successfully before first live traffic.
 
 ## Submission Links
 

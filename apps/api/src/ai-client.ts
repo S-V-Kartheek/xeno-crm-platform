@@ -103,6 +103,34 @@ export type AiGenerateResult =
   | { ok: true; rules: SegmentRules }
   | { ok: false; error: string };
 
+function normalizeSegmentRules(value: unknown): unknown {
+  if (!value || typeof value !== "object") return value;
+
+  const rules = value as { conditions?: unknown[] };
+  if (!Array.isArray(rules.conditions)) return value;
+
+  return {
+    ...rules,
+    conditions: rules.conditions.map((condition) => {
+      if (!condition || typeof condition !== "object") return condition;
+
+      const current = condition as { operator?: unknown; value?: unknown };
+      if (current.operator !== "in" || Array.isArray(current.value)) {
+        return condition;
+      }
+
+      return {
+        ...current,
+        value: String(current.value)
+          .replace(/^\[|\]$/g, "")
+          .split(",")
+          .map((item) => item.trim().replace(/^["']|["']$/g, ""))
+          .filter(Boolean)
+      };
+    })
+  };
+}
+
 /**
  * Call the AI to translate a natural-language prompt into validated SegmentRules.
  * Always returns a discriminated union — never throws.
@@ -129,7 +157,7 @@ export async function generateSegmentRules(naturalLanguage: string): Promise<AiG
       return { ok: false, error: "AI returned malformed JSON — please try again or build manually." };
     }
 
-    const validation = segmentRulesSchema.safeParse(parsed);
+    const validation = segmentRulesSchema.safeParse(normalizeSegmentRules(parsed));
     if (!validation.success) {
       const detail = validation.error.issues.map((i) => i.message).join("; ");
       return { ok: false, error: `AI rules failed validation: ${detail}` };
