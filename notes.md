@@ -4,7 +4,7 @@ Target audience: Xeno engineering evaluators (SDE/FDE hiring panel) — assessin
 
 Constraints:  solo build, AI-tool-assisted development, free-tier hosting only.
 
-Tech ecosystem: Next.js + TypeScript + Node/Express + PostgreSQL + Claude/OpenAI API — chosen for deploy speed, AI-tool fluency, and clean separation into two repos as the spec implies.
+Tech ecosystem: Next.js + TypeScript + Node/Express + PostgreSQL + Gemini/OpenAI API — chosen for deploy speed, AI-tool fluency, and clean separation into two repos as the spec implies.
 
 Phase 0 — Setup & Foundation 
 Objectives
@@ -27,7 +27,7 @@ Backend: Node.js + Express + TypeScript (separate repo)
 Database: PostgreSQL via Supabase or Neon (free tier, instant provisioning)
 Hosting: not yet — local dev only this phase
 DevOps/Tools: GitHub (two repos created day 1), Prisma or Drizzle ORM for schema + migrations
-Tools: Claude/Cursor for scaffolding boilerplate + seed script generation
+Tools: Gemini/Cursor for scaffolding boilerplate + seed script generation
 
 
 
@@ -76,7 +76,7 @@ Tech stack
 
 Frontend: Segment builder UI (condition rows, AND/OR toggles) + AI prompt input box + live count preview
 Backend: /segments CRUD, /segments/preview (returns matching customer count + sample), /segments/ai-generate (calls LLM)
-AI: Claude API (Sonnet) with tool-use/structured output for rules JSON
+AI: Gemini API (Flash) with tool-use/structured output for rules JSON
 Database: segments table (rules stored as JSONB, created_via: manual | ai_generated)
 Hosting: redeploy current state to catch any new env-var/API-key issues with the AI integration
 DevOps/Tools: store LLM prompts in a /prompts folder in the repo — doubles as documentation for your "AI workflow" video section
@@ -105,7 +105,7 @@ Tech stack
 Frontend: Campaign creation wizard (select segment → channel → AI draft → review/edit → send), campaign list view
 Backend (CRM): /campaigns CRUD, /campaigns/:id/send (creates communications rows, calls channel service), /receipts (idempotent webhook handler)
 Channel service (separate repo/deploy): /send endpoint (returns 202, schedules simulated outcome via delayed job), calls back to CRM /receipts
-AI: Claude API for message drafting (2 variants, personalization tokens like {{name}}, {{last_category}})
+AI: Gemini API for message drafting (2 variants, personalization tokens like {{name}}, {{last_category}})
 Database: campaigns, communications, communication_events (event log) tables
 Hosting: deploy channel service to Render/Railway as its own service now — don't defer this
 DevOps/Tools: optional BullMQ + Upstash Redis for the delayed-callback queue (impressive if time allows; in-memory setTimeout + clear "in production I'd use a queue" note is an acceptable fallback)
@@ -132,7 +132,7 @@ Tech stack
 
 Frontend: Dashboard with stat cards + simple charts (Recharts), per-campaign drill-down view, AI insight callout box
 Backend: /campaigns/:id/stats (aggregation query), /campaigns/:id/insight (LLM call over stats)
-AI: Claude API, single-shot prompt over a small JSON stats object
+AI: Gemini API, single-shot prompt over a small JSON stats object
 Database: read-heavy aggregation queries over communications/communication_events — add indexes on campaign_id, status now if not already present
 Hosting: redeploy, sanity-check chart rendering on deployed build (chart libraries occasionally behave differently in prod builds)
 

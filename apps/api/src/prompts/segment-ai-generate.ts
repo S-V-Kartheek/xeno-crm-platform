@@ -4,7 +4,7 @@
  * This file is intentionally kept separate from the AI client so it can be:
  * 1. Audited / reviewed independently of the calling code
  * 2. Referenced in the project walkthrough video as a concrete AI artifact
- * 3. Swapped cleanly when switching providers (Gemini → Claude)
+ * 3. Swapped cleanly when switching providers (e.g., if needed in the future)
  *
  * The prompt uses structured output (JSON mode) — not free text — to guarantee
  * the response can be parsed and validated with Zod before touching the DB.

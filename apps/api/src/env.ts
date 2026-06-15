@@ -23,7 +23,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   PORT: z.coerce.number().int().positive().default(4000),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
-  // AI provider — currently Gemini. To switch to Claude: rename to ANTHROPIC_API_KEY and update ai-client.ts
+  // AI provider — Gemini API Key
   GEMINI_API_KEY: z.string().min(1),
   // Channel service — separate Express app on port 4001
   CHANNEL_SERVICE_URL: z.string().default("http://localhost:4001"),

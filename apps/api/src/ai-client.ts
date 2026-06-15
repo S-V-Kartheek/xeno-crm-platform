@@ -1,15 +1,5 @@
 /**
- * AI Client — thin abstraction over the current AI provider.
- *
- * SWITCHING TO CLAUDE: Replace the contents of this file only.
- * 1. npm remove @google/generative-ai
- * 2. npm install @anthropic-ai/sdk --workspace=apps/api
- * 3. Change env.GEMINI_API_KEY → env.ANTHROPIC_API_KEY in env.ts
- * 4. Re-implement generateSegmentRules() and draftCampaignMessages() using
- *    Anthropic's messages.create() with tool-use (structured output).
- *    The prompt text is the same.
- *
- * Nothing else in the codebase needs to change.
+ * AI Client — thin abstraction over the current AI provider (Gemini).
  */
 
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
